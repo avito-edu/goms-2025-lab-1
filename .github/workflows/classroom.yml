@@ -1,0 +1,39 @@
+name: Simple students snth
+on:
+  - push
+  - workflow_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  autograding:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25"
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Test Student Storage
+        id: student-storage-test
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test Student Storage
+          setup-command: go mod download
+          command: go test ./homework -run TestStudentStorage -v
+          timeout: 20
+          max-score: 2
+
+      - name: Autograding Reporter
+        uses: education/autograding-grading-reporter@v1
+        env:
+          STUDENT-STORAGE-TEST_RESULTS: "${{steps.student-storage-test.outputs.result}}"
+        with:
+          runners: student-storage-test

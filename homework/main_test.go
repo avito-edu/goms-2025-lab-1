@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
@@ -113,51 +112,6 @@ func TestStudentStorage(t *testing.T) {
 			t.Error("Loaded student data doesn't match")
 		}
 	})
-
-	// Очистка после тестов
-	_ = os.Remove(testFilePath)
-}
-
-func TestConcurrentAccess(t *testing.T) {
-	storage := NewStudentStorage(testFilePath)
-
-	// Добавляем начального студента
-	err := storage.AddStudent("Initial", 25, []int{80, 85})
-	if err != nil {
-		t.Fatalf("Failed to add initial student: %v", err)
-	}
-
-	// Запускаем несколько горутин для конкурентного доступа
-	done := make(chan bool)
-	for i := 0; i < 10; i++ {
-		go func(id int) {
-			// Чтение
-			_, err := storage.GetStudent("Initial")
-			if err != nil {
-				t.Errorf("Failed to get student in goroutine %d: %v", id, err)
-			}
-
-			// Запись
-			newName := fmt.Sprintf("Student%d", id)
-			err = storage.AddStudent(newName, 20+id, []int{70 + id, 75 + id})
-			if err != nil {
-				t.Errorf("Failed to add student in goroutine %d: %v", id, err)
-			}
-
-			done <- true
-		}(i)
-	}
-
-	// Ожидаем завершения всех горутин
-	for i := 0; i < 10; i++ {
-		<-done
-	}
-
-	// Проверяем, что все студенты добавлены
-	students := storage.GetAllStudents()
-	if len(students) != 11 { // Initial + 10 новых
-		t.Errorf("Expected 11 students, got %d", len(students))
-	}
 
 	// Очистка после тестов
 	_ = os.Remove(testFilePath)

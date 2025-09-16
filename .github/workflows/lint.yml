@@ -1,0 +1,33 @@
+name: Lint & Coverage
+
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "stable"
+
+#      - name: Build
+#        run: |
+#          go mod tidy
+#          go build -v ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+
+      - name: Test with Coverage
+        run: |
+          go mod tidy
+          go test -v -race -coverpkg=./... ./...
