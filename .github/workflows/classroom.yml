@@ -32,7 +32,7 @@ jobs:
           max-score: 2
 
       - name: Autograding Reporter
-        uses: education/autograding-grading-reporter@v1
+        uses: classroom-resources/autograding-grading-reporter@v1
         env:
           STUDENT-STORAGE-TEST_RESULTS: "${{steps.student-storage-test.outputs.result}}"
         with:
